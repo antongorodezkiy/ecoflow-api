@@ -1,8 +1,8 @@
-# teamlead.pw.ecoflow.api
+# teamlead.pw.ecoflow
 
 ## Versions
 
-`teamlead.pw.ecoflow.api` uses a modified version of [Semantic Versioning](https://semver.org) for all changes.
+`teamlead.pw.ecoflow` uses a modified version of [Semantic Versioning](https://semver.org) for all changes.
 
 ### Supported Python Versions
 
@@ -17,7 +17,9 @@ Install from PyPi using [pip](https://pip.pypa.io/en/latest/), a
 package manager for Python.
 
 ```shell
-pip3 install teamlead.pw.ecoflow.api
+pip3 install teamlead.pw.ecoflow
+# or
+poetry add git+https://github.com/antongorodezkiy/ecoflow-api
 ```
 
 ## Usage
