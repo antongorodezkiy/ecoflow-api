@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Ecoflow API Library
+Ecoflow REST API Library
 """
 
 import hashlib
