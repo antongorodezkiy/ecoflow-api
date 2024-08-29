@@ -4,8 +4,8 @@ build-backend = "hatchling.build"
 
 [project]
 name = "teamlead.pw.ecoflow"
-version = "0.2.1"
-dependencies = ["requests", "paho.mqtt.client"]
+dynamic = ["version"]
+dependencies = ["requests", "paho-mqtt>=2.1.0"]
 requires-python = ">=3.10"
 authors = [{ name = "Eduard Kozachok", email = "admin@teamlead.pw" }]
 maintainers = [{ name = "Eduard Kozachok", email = "admin@teamlead.pw" }]
@@ -20,9 +20,13 @@ classifiers = [
 
     "Intended Audience :: Developers",
 
-    "Operating System :: OS Independent",
+    "Operating System :: MacOS :: MacOS X",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX",
 
     "License :: OSI Approved :: MIT License",
+
+    "Natural Language :: English",
 
     "Programming Language :: Python",
     "Programming Language :: Python :: 3.10",
@@ -30,6 +34,7 @@ classifiers = [
 
     "Topic :: Home Automation",
     "Topic :: Software Development :: Libraries",
+    "Topic :: Internet",
 ]
 
 [project.urls]
@@ -38,3 +43,10 @@ Documentation = "https://github.com/antongorodezkiy/ecoflow-api"
 Repository = "https://github.com/antongorodezkiy/ecoflow-api.git"
 "Bug Tracker" = "https://github.com/antongorodezkiy/ecoflow-api/issues"
 Changelog = "https://github.com/antongorodezkiy/ecoflow-api/blob/master/CHANGELOG.md"
+
+[tool.hatch.version]
+path = "src/teamlead/pw/ecoflow/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+sources = ["src"]
+include = ["src/teamlead"]

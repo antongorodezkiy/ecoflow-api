@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.2.3] - 2024-08-29
+
+## Changed
+
+- pyproject.toml
+
+## [0.2.2] - 2024-08-29
+
+## Changed
+
+- pyproject.toml
+
 ## [0.2.1] - 2024-08-29
 
 ## Added
