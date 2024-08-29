@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.4] - 2024-08-29
+
+## Changed
+
+- pyproject.toml
+- deprecated setup.py
+
 ## [0.2.3] - 2024-08-29
 
 ## Changed
