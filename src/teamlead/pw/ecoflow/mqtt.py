@@ -18,7 +18,7 @@ class EcoflowMQTTApi():
     log = None
     timeout = 60
     last_message_time = None
-    timoeout_sleep_before_reconnect = 5
+    timoeout_sleep_before_reconnect = 15
     timoeout_idle_reconnect_process = 60
 
     REASON_CODE_SUCCESS = 'Success'
@@ -62,13 +62,14 @@ class EcoflowMQTTApi():
         self.idle_timer.start()
 
     def connect(self):
+        self.log.info(f"(EcoflowMQTTApi) connect")
         if self.client:
             self.client.loop_stop()
             self.client.disconnect()
         else:
             self._init_idle_timer()
 
-        self.client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, self.client_id)
+        self.client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, self.client_id, protocol = mqtt.MQTTv5)
         self.client.username_pw_set(self.username, self.password)
         self.client.tls_set(certfile = None, keyfile = None, cert_reqs = ssl.CERT_REQUIRED)
         self.client.tls_insecure_set(False)
@@ -79,13 +80,13 @@ class EcoflowMQTTApi():
         self.client.on_message = self._on_message
         self.client.on_disconnect = self._on_disconnect
 
-        self.log.info(f"Connecting to MQTT Broker {self.host}:{self.port}, client id = {self.client_id}")
-        self.client.connect(self.host, self.port)
+        self.log.info(f"(EcoflowMQTTApi) Connecting to MQTT Broker {self.host}:{self.port}, client id = {self.client_id}")
+        self.client.connect(host = self.host, port = self.port, keepalive = 15)
         self.client.loop_start()
 
     def idle_reconnect(self):
         if self.last_message_time and (time.time() - self.last_message_time) > self.timeout:
-            self.log.error(f"Inactive for {self.timeout} seconds. Reconnecting...")
+            self.log.error(f"(EcoflowMQTTApi) Inactive for {self.timeout} seconds. Reconnecting...")
             # We pull the following into a separate process because there are actually quite a few things that can go
             # wrong inside the connection code, including it just timing out and never returning. So this gives us a
             # measure of safety around reconnection
@@ -95,44 +96,46 @@ class EcoflowMQTTApi():
                 connect_process.join(timeout = self.timoeout_idle_reconnect_process)
                 connect_process.terminate()
                 if connect_process.exitcode == 0:
-                    self.log.info('Reconnected successfully')
+                    self.log.info('(EcoflowMQTTApi) Reconnected successfully')
                     # Reset last_message_time here to avoid a race condition between idle_reconnect getting called again
                     # before on_connect() or on_message() are called
                     self.last_message_time = None
                     break
                 else:
-                    self.log.error('Failed to reconnect or timed out, reconnecting...')
+                    self.log.error('(EcoflowMQTTApi) Failed to reconnect or timed out, reconnecting...')
 
     def _on_connect(self, client, userdata, flags, reason_code, properties):
         # reset message time on connection
+        self.log.info(f"(EcoflowMQTTApi) _on_connect: {client} {userdata} {flags} {reason_code} {properties}")
         self.touch()
         match reason_code:
             case self.REASON_CODE_SUCCESS:
                 self.on_connected(self, client)
             case _:
-                self.log.error(f"Failed to connect to MQTT: {reason_code}")
+                self.log.error(f"(EcoflowMQTTApi) Failed to connect to MQTT: {reason_code}")
 
         return client
 
     def on_connected(self, client):
-        self.log.info(f"on_connected: {client}")
+        self.log.info(f"(EcoflowMQTTApi) on_connected: {client}")
 
     def _on_subscribe(self, client, userdata, mid, reason_code_list, properties):
-        self.log.info(f"on_subscribe: {client}, {userdata}, {mid}, {reason_code_list}, {properties}")
+        self.log.info(f"(EcoflowMQTTApi) on_subscribe: {client}, {userdata}, {mid}, {reason_code_list}, {properties}")
 
     def _on_message(self, client, userdata, message):
         self.touch()
         self.on_message(self, client, userdata, message)
 
     def on_message(self, client, userdata, message):
-        self.log.info(f"on_message: {message.payload.decode('utf-8')}")
+        self.log.info(f"(EcoflowMQTTApi) on_message: {message.payload.decode('utf-8')}")
 
     def _on_disconnect(self, client, userdata, flags, reason_code, properties):
         if reason_code > 0:
-            self.log.error(f"Unexpected MQTT disconnection: {reason_code}. Will auto-reconnect")
-            time.sleep(self.timoeout_sleep_before_reconnect)
+            self.log.error(f"(EcoflowMQTTApi) Unexpected MQTT disconnection: {reason_code}. Will auto-reconnect")
+            self.log.error(f"{self.timoeout_sleep_before_reconnect}")
+            # time.sleep(self.timoeout_sleep_before_reconnect)
         else:
-            self.log.error(f"Other MQTT disconnection: {reason_code}")
+            self.log.error(f"(EcoflowMQTTApi) Other MQTT disconnection: {reason_code}")
 
     def get_client(self):
         return self.client
