@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.3.0] - 2025-11-23
+
+## Changed
+
+- fixed params unpacking and serialization for methods set_device_quota and get_device_quota
+
+## [0.2.5] - 2025-06-11
+
+## Changed
+
+- changed protocol to v5
+
 ## [0.2.4] - 2024-08-29
 
 ## Changed

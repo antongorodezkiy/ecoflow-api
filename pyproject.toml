@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "teamlead.pw.ecoflow"
 dynamic = ["version"]
-dependencies = ["requests", "paho-mqtt>=2.1.0"]
+dependencies = ["requests", "paho-mqtt>=2.1.0", "flatten-dict"]
 requires-python = ">=3.10"
 authors = [{ name = "Eduard Kozachok", email = "admin@teamlead.pw" }]
 maintainers = [{ name = "Eduard Kozachok", email = "admin@teamlead.pw" }]

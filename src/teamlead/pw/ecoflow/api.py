@@ -10,7 +10,10 @@ import hmac
 import random
 import time
 import logging
+import urllib
+from flatten_dict import flatten
 from urllib.parse import urlencode
+from urllib.parse import unquote
 from http.client import HTTPConnection
 
 import requests
@@ -65,7 +68,17 @@ class EcoflowApi:
     def generate_nonce(self):
         return str(random.randrange(100000, 999999))
 
+    def ecoflow_reducer(self, k1, k2):
+        if k1 is None:
+            return k2
+        else:
+            if type(k2) is int:
+                return f"{k1}[{k2}]"
+            else:
+                return f"{k1}.{k2}"
+
     def generate_sign(self, params, timestamp, nonce):
+        params = flatten(params, reducer = self.ecoflow_reducer, enumerate_types=(list,))
         all_params = {
             **params,
             **{
@@ -76,7 +89,7 @@ class EcoflowApi:
         }
 
         return hmac \
-            .new(self.secret_key.encode(), urlencode(all_params).encode(), hashlib.sha256) \
+            .new(self.secret_key.encode(), unquote(urlencode(all_params)).encode(), hashlib.sha256) \
             .hexdigest()
 
     def debug(self, message):
@@ -99,7 +112,7 @@ class EcoflowApi:
             'accessKey': self.access_key,
             'nonce': nonce,
             'timestamp': timestamp,
-            'sign': self.generate_sign({}, timestamp, nonce)
+            'sign': self.generate_sign(data if data is not None else {}, timestamp, nonce)
         }
 
         response = requests.request(method, url, headers = headers, json = data)
@@ -126,13 +139,11 @@ class EcoflowApi:
         """
 
         data = {
-            *{
-                'sn': sn
-            },
-            params
+            'params': params,
+            'sn': sn
         }
 
-        return self.request('put', self.url('/iot-open/sign/device/quota', data = data))
+        return self.request('put', self.url('/iot-open/sign/device/quota'), data = data)
 
     def get_device_quota(self, sn, params):
         """
@@ -140,13 +151,11 @@ class EcoflowApi:
         """
 
         data = {
-            *{
-                'sn': sn
-            },
-            params
+            'params': params,
+            'sn': sn
         }
 
-        return self.request('post', self.url('/iot-open/sign/device/quota', data = data))
+        return self.request('post', self.url('/iot-open/sign/device/quota'), data = data)
 
     def get_device_quota_all(self, sn):
         """
